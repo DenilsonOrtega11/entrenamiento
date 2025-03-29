@@ -144,13 +144,15 @@ else:
         fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
         axes[0].plot(x_arr, hist['loss'], '-o', label='Pérdida de entrenamiento')
-        axes[0].plot(x_arr, hist['val_loss'], '--<', label='Pérdida de validación')
+        if 'val_loss' in hist:  # Verifica que val_loss esté presente
+            axes[0].plot(x_arr, hist['val_loss'], '--<', label='Pérdida de validación')
         axes[0].set_xlabel('Época')
         axes[0].set_ylabel('Pérdida')
         axes[0].legend()
 
         axes[1].plot(x_arr, hist['accuracy'], '-o', label='Precisión de entrenamiento')
-        axes[1].plot(x_arr, hist['val_accuracy'], '--<', label='Precisión de validación')
+        if 'val_accuracy' in hist:  # Verifica que val_accuracy esté presente
+            axes[1].plot(x_arr, hist['val_accuracy'], '--<', label='Precisión de validación')
         axes[1].set_xlabel('Época')
         axes[1].set_ylabel('Precisión')
         axes[1].legend()
@@ -164,7 +166,7 @@ else:
         modelo_guardado_path = 'modelos/modelo_personalizado.keras'
         modelo.save(modelo_guardado_path)
         st.success(f"Modelo guardado como '{modelo_guardado_path}'.")
-
+        
         # Botón para descargar el modelo guardado
         with open(modelo_guardado_path, "rb") as f:
             st.download_button(
@@ -182,13 +184,12 @@ else:
         y_true = []
         y_pred = []
 
-        for images, labels in st.session_state.test_dataset:  # Cambiado a tamaño de batch 1
+        for images, labels in st.session_state.test_dataset:
             preds = modelo(images)
             preds = tf.argmax(preds, axis=1)
             y_true.extend(labels.numpy())
             y_pred.extend(preds.numpy())
 
-        
         # Matriz de confusión
         cm = confusion_matrix(y_true, y_pred)
 
